@@ -1,6 +1,6 @@
 const express = require("express");
 const app = express();
-const port = 9000;
+const port = process.env.PORT || 3000
 require("dotenv").config();
 const fetch = require("node-fetch");
 const notifier = require("node-notifier");
@@ -49,7 +49,7 @@ function checkVaccines() {
           pass1.push(session);
         }
         if (
-          session.min_age_limit < 45 &&
+          session.min_age_limit >= 45 &&
           session.available_capacity_dose1 > 1 &&
           session.vaccine.toLowerCase() === chosenVaccine
         ) {
@@ -90,19 +90,21 @@ function checkVaccines() {
 
   final.then((resul) => {
     console.log(resul)
-    const msg = {
-      to: "snitin9489@gmail.com", // Change to your recipient
-      from: "snitin8994@gmail.com", // Change to your verified sender
-      subject: `${chosenVaccine.toUpperCase()} Vaccine Alert`,
-      text: outputToHumanReadableMessage(resul),
-      html: outputToHumanReadableMessage(resul,"html"),
-    };
+
 
     if (resul.length > 0) {
       notifier.notify({
         title: `${chosenVaccine.toUpperCase()} Vaccine Alert`,
         message: outputToHumanReadableMessage(resul),
       });
+
+      const msg = {
+        to: "snitin9489@gmail.com", // Change to your recipient
+        from: "snitin8994@gmail.com", // Change to your verified sender
+        subject: `${chosenVaccine.toUpperCase()} Vaccine Alert`,
+        text: outputToHumanReadableMessage(resul),
+        html: outputToHumanReadableMessage(resul,"html"),
+      };
 
       sgMail
         .send(msg)
@@ -127,7 +129,7 @@ app.get("/", (req, res) => {
     .then((resu) => res.send(resu));
 });
 
-cron.schedule("* * * * *", function () {
+cron.schedule("*/5 * * * *", function () {
   checkVaccines();
 });
 
