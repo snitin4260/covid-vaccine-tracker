@@ -37,6 +37,7 @@ function checkVaccines() {
       const pass1 = [];
       const pass2 = [];
 
+
       const result = center.sessions.forEach((session) => {
         if (
           session.min_age_limit < 45 &&
@@ -48,7 +49,7 @@ function checkVaccines() {
           pass1.push(session);
         }
         if (
-          session.min_age_limit >= 45 &&
+          session.min_age_limit < 45 &&
           session.available_capacity_dose1 > 1 &&
           session.vaccine.toLowerCase() === chosenVaccine
         ) {
@@ -57,6 +58,9 @@ function checkVaccines() {
           pass2.push(session);
         }
       });
+
+      // console.log("pass1 for vaccine", pass1)
+      // console.log("pass2 for vaccine", pass2)
 
 
       pass1.forEach(item => {
@@ -100,14 +104,14 @@ function checkVaccines() {
         message: outputToHumanReadableMessage(resul),
       });
 
-      // sgMail
-      //   .send(msg)
-      //   .then(() => {
-      //     console.log("Email sent");
-      //   })
-      //   .catch((error) => {
-      //     console.error(error);
-      //   });
+      sgMail
+        .send(msg)
+        .then(() => {
+          console.log("Email sent");
+        })
+        .catch((error) => {
+          console.error(error);
+        });
     }
   });
 }
