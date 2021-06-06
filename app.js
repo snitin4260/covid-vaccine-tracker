@@ -1,12 +1,13 @@
 const express = require("express");
 const app = express();
 const port = 9000;
-require('dotenv').config()
+require("dotenv").config();
 const fetch = require("node-fetch");
 const notifier = require("node-notifier");
 var cron = require("node-cron");
 const { format } = require("date-fns");
 const sgMail = require("@sendgrid/mail");
+const {outputToHumanReadableMessage } = require("./utils");
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 const COVISHIELD = "covishield";
@@ -14,7 +15,7 @@ const COVAXIN = "covaxin";
 
 const chosenVaccine = COVISHIELD;
 
-let alreadySentCenters = [];
+let alreadySentCenters = {};
 
 function checkVaccines() {
   console.log(
@@ -29,65 +30,84 @@ function checkVaccines() {
       )}`
     );
     const final = await response.json();
-    const sessionRes = [];
+    const intersectionResults=[]
 
-    const finalResult = final.centers.filter((center) => {
-      const result = center.sessions.filter((session) => {
+    final.centers.forEach((center) => {
+      const centerId = center.center_id;
+      const pass1 = [];
+      const pass2 = [];
+
+      const result = center.sessions.forEach((session) => {
         if (
           session.min_age_limit < 45 &&
-          session.available_capacity_dose2 > 1 &&
+          session.available_capacity_dose1 > 1 &&
           session.vaccine.toLowerCase() === chosenVaccine
         ) {
           session.center_name = center.name;
           session.pincode = center.pincode;
-          sessionRes.push(session);
-          return session;
+          pass1.push(session);
         }
-
-        return false;
+        if (
+          session.min_age_limit >= 45 &&
+          session.available_capacity_dose1 > 1 &&
+          session.vaccine.toLowerCase() === chosenVaccine
+        ) {
+          session.center_name = center.name;
+          session.pincode = center.pincode;
+          pass2.push(session);
+        }
       });
 
-      if (result.length > 0) return result;
 
-      return false;
+      pass1.forEach(item => {
+        const p1Date = item.date;
+        pass2.forEach(p2Item => {
+          const p2Date = p2Item.date;
+          const matchingTime = item.slots.filter(value => p2Item.slots.includes(value));
+          if(p1Date == p2Date &&  matchingTime.length > 0) {
+            intersectionResults.push({
+              name: center.name,
+              address: center.address,
+              pincode: center.pincode,
+              date: p1Date,
+              time:  matchingTime.join(" ")
+            })
+          }
+
+        })
+      })
+
     });
 
-    return sessionRes;
+    return intersectionResults;
   }
 
   const final = test();
 
   final.then((resul) => {
-    console.log(resul);
-    let pincodes = [];
-    resul.map((r) => pincodes.push(r.pincode));
-    let uniqPin = new Set(pincodes);
-    let uniqArrayPincodes = Array.from(uniqPin);
+    console.log(resul)
     const msg = {
       to: "snitin9489@gmail.com", // Change to your recipient
       from: "snitin8994@gmail.com", // Change to your verified sender
       subject: `${chosenVaccine.toUpperCase()} Vaccine Alert`,
-      text: `Vaccine is available at pincodes: ${uniqArrayPincodes.join(" ")}`,
-      html: `<p>Vaccine is available at pincodes: ${uniqArrayPincodes.join(
-        " "
-      )}</p>`,
+      text: outputToHumanReadableMessage(resul),
+      html: outputToHumanReadableMessage(resul,"html"),
     };
 
     if (resul.length > 0) {
       notifier.notify({
         title: `${chosenVaccine.toUpperCase()} Vaccine Alert`,
-        message: `${uniqArrayPincodes.join(" ")}`,
-        sound: true,
+        message: outputToHumanReadableMessage(resul),
       });
 
-      sgMail
-        .send(msg)
-        .then(() => {
-          console.log("Email sent");
-        })
-        .catch((error) => {
-          console.error(error);
-        });
+      // sgMail
+      //   .send(msg)
+      //   .then(() => {
+      //     console.log("Email sent");
+      //   })
+      //   .catch((error) => {
+      //     console.error(error);
+      //   });
     }
   });
 }
