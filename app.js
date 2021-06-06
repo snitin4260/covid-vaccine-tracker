@@ -50,7 +50,7 @@ function checkVaccines() {
           pass1.push(session);
         }
         if (
-          session.min_age_limit >= 45 &&
+          session.min_age_limit < 45 &&
           session.available_capacity_dose1 > 1 &&
           session.vaccine.toLowerCase() === chosenVaccine
         ) {
@@ -130,7 +130,7 @@ app.get("/", (req, res) => {
     .then((resu) => res.send(resu));
 });
 
-cron.schedule("*/5 * * * *", function () {
+cron.schedule("*/2 * * * *", function () {
   checkVaccines();
 });
 
