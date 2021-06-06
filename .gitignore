@@ -1,3 +1,4 @@
 sendgrid.env
 .history
 node_modules
+.env
