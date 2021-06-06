@@ -9,6 +9,7 @@ const { format } = require("date-fns");
 const sgMail = require("@sendgrid/mail");
 const {outputToHumanReadableMessage } = require("./utils");
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+console.log("sendgrid api key", process.env.SENDGRID_API_KEY)
 
 const COVISHIELD = "covishield";
 const COVAXIN = "covaxin";
