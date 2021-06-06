@@ -106,7 +106,7 @@ function checkVaccines() {
         text: outputToHumanReadableMessage(resul),
         html: outputToHumanReadableMessage(resul,"html"),
       };
-
+  if (false){
       sgMail
         .send(msg)
         .then(() => {
@@ -115,6 +115,7 @@ function checkVaccines() {
         .catch((error) => {
           console.error(error);
         });
+      }
     }
   });
 }
