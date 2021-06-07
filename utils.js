@@ -15,6 +15,18 @@ function outputToHumanReadableMessage(input, format='text') {
 
 }
 
+
+function checkMailAlreadySent(alreadySentCenters) {
+
+}
+
+
+function addCenterToGlobalList(){    
+}
+
+
+
+
 module.exports = {
     outputToHumanReadableMessage
 }

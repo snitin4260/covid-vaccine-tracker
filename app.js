@@ -1,22 +1,28 @@
 const express = require("express");
 const app = express();
 const port = process.env.PORT || 3000
+
 require("dotenv").config();
 const fetch = require("node-fetch");
 const notifier = require("node-notifier");
 var cron = require("node-cron");
 const { format } = require("date-fns");
 const sgMail = require("@sendgrid/mail");
+
 const {outputToHumanReadableMessage } = require("./utils");
+const differentAgeGroupsSameVaccine = require("./differentAgeGroup")
+const singleAgeGroup = require("./singleAgeGroup")
+const {CHOSEN_VACCINE, RUN_SINGLE} = require("./constants")
+
+
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-console.log("sendgrid api key", process.env.SENDGRID_API_KEY)
+console.log("App running")
 
-const COVISHIELD = "covishield";
-const COVAXIN = "covaxin";
 
-const chosenVaccine = COVISHIELD;
 
 let alreadySentCenters = {};
+
+
 
 function checkVaccines() {
   console.log(
@@ -30,61 +36,20 @@ function checkVaccines() {
         "dd-MM-yyyy"
       )}`
     );
-    const final = await response.json();
-    const intersectionResults=[]
 
-    final.centers.forEach((center) => {
-      const centerId = center.center_id;
-      const pass1 = [];
-      const pass2 = [];
+    const  data = await response.json();
 
+    if(!RUN_SINGLE) {
 
-      const result = center.sessions.forEach((session) => {
-        if (
-          session.min_age_limit < 45 &&
-          session.available_capacity_dose1 > 1 &&
-          session.vaccine.toLowerCase() === chosenVaccine
-        ) {
-          session.center_name = center.name;
-          session.pincode = center.pincode;
-          pass1.push(session);
-        }
-        if (
-          session.min_age_limit < 45 &&
-          session.available_capacity_dose1 > 1 &&
-          session.vaccine.toLowerCase() === chosenVaccine
-        ) {
-          session.center_name = center.name;
-          session.pincode = center.pincode;
-          pass2.push(session);
-        }
-      });
+      return differentAgeGroupsSameVaccine(data)
 
-      // console.log("pass1 for vaccine", pass1)
-      // console.log("pass2 for vaccine", pass2)
+     
+    }
+    else {
+      return singleAgeGroup(data)
 
+    }
 
-      pass1.forEach(item => {
-        const p1Date = item.date;
-        pass2.forEach(p2Item => {
-          const p2Date = p2Item.date;
-          const matchingTime = item.slots.filter(value => p2Item.slots.includes(value));
-          if(p1Date == p2Date &&  matchingTime.length > 0) {
-            intersectionResults.push({
-              name: center.name,
-              address: center.address,
-              pincode: center.pincode,
-              date: p1Date,
-              time:  matchingTime.join(" ")
-            })
-          }
-
-        })
-      })
-
-    });
-
-    return intersectionResults;
   }
 
   const final = test();
@@ -95,14 +60,14 @@ function checkVaccines() {
 
     if (resul.length > 0) {
       notifier.notify({
-        title: `${chosenVaccine.toUpperCase()} Vaccine Alert`,
+        title: `${CHOSEN_VACCINE.toUpperCase()} Vaccine Alert`,
         message: outputToHumanReadableMessage(resul),
       });
 
       const msg = {
         to: "snitin9489@gmail.com", // Change to your recipient
         from: "snitin8994@gmail.com", // Change to your verified sender
-        subject: `${chosenVaccine.toUpperCase()} Vaccine Alert`,
+        subject: `${CHOSEN_VACCINE.toUpperCase()} Vaccine Alert`,
         text: outputToHumanReadableMessage(resul),
         html: outputToHumanReadableMessage(resul,"html"),
       };
@@ -131,7 +96,7 @@ app.get("/", (req, res) => {
     .then((resu) => res.send(resu));
 });
 
-cron.schedule("*/2 * * * *", function () {
+cron.schedule("* * * * *", function () {
   checkVaccines();
 });
 
