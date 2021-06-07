@@ -42,8 +42,7 @@ function checkVaccines() {
     if(!RUN_SINGLE) {
 
       return differentAgeGroupsSameVaccine(data)
-
-     
+ 
     }
     else {
       return singleAgeGroup(data)

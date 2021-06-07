@@ -1,12 +1,18 @@
+const {CHOSEN_VACCINE, CHOSEN_DOSE, DOSE_OBJ} = require("./constants")
+
 function singleAgeGroup(data) {
   const result = [];
   data.centers.forEach((center) => {
     const centerId = center.center_id;
     center.sessions.forEach((session) => {
+     
+     const selecteDose = DOSE_OBJ[CHOSEN_DOSE]
+     const sessionDoseValue = session[selecteDose]
+
       if (
         session.min_age_limit < 45 &&
-        session.available_capacity_dose2 > 1 &&
-        session.vaccine.toLowerCase() === chosenVaccine
+        sessionDoseValue > 1 &&
+        session.vaccine.toLowerCase() === CHOSEN_VACCINE
       ) {
         session.center_name = center.name;
         session.pincode = center.pincode;
