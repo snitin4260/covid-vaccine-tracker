@@ -1,7 +1,7 @@
 const COVISHIELD = "covishield";
 const COVAXIN = "covaxin";
 
-const CHOSEN_VACCINE = COVAXIN;
+const CHOSEN_VACCINE = COVISHIELD;
 
 const CHOSEN_DOSE = 1;
 

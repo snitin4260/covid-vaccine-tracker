@@ -1,6 +1,8 @@
+const {CHOSEN_VACCINE, CHOSEN_DOSE} = require("./constants")
+
 function outputToHumanReadableMessage(input, format='text') {
-   let finalText='';
-   let finalHtml=''
+   let finalText= `${CHOSEN_VACCINE.toUpperCase()} vaccine  DOSE ${CHOSEN_DOSE} alert \n`;
+   let finalHtml=`<h1>${CHOSEN_VACCINE.toUpperCase()} vaccine  DOSE ${CHOSEN_DOSE} alert</h1>`
 
    for (let i =0; i< input.length;i++) {
        const item = input[i];
