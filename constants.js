@@ -3,7 +3,7 @@ const COVAXIN = "covaxin";
 
 const CHOSEN_VACCINE = COVISHIELD;
 
-const CHOSEN_DOSE = 1;
+const CHOSEN_DOSE = 2;
 
 const DOSE_OBJ = {
   1: 'available_capacity_dose1',
