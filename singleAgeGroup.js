@@ -8,7 +8,7 @@ function singleAgeGroup(data) {
     center.sessions.forEach((session) => {
      const sessionDoseValue = session[selecteDose]
       if (
-        session.min_age_limit < 45 &&
+        session.min_age_limit >= 45 &&
         sessionDoseValue > 1 &&
         session.vaccine.toLowerCase() === CHOSEN_VACCINE
       ) {
