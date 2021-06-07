@@ -18,17 +18,15 @@ const {CHOSEN_VACCINE, RUN_SINGLE} = require("./constants")
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 console.log("App running")
 
-
-
 let alreadySentCenters = {};
 
-
-
 function checkVaccines() {
+
   console.log(
     "Executed at",
     `${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`
   );
+
   async function test() {
     const response = await fetch(
       `https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/calendarByDistrict?district_id=571&date=${format(
@@ -40,9 +38,7 @@ function checkVaccines() {
     const  data = await response.json();
 
     if(!RUN_SINGLE) {
-
       return differentAgeGroupsSameVaccine(data)
- 
     }
     else {
       return singleAgeGroup(data)
@@ -70,7 +66,6 @@ function checkVaccines() {
         text: outputToHumanReadableMessage(resul),
         html: outputToHumanReadableMessage(resul,"html"),
       };
-  if (false){
       sgMail
         .send(msg)
         .then(() => {
@@ -79,7 +74,6 @@ function checkVaccines() {
         .catch((error) => {
           console.error(error);
         });
-      }
     }
   });
 }
@@ -95,7 +89,7 @@ app.get("/", (req, res) => {
     .then((resu) => res.send(resu));
 });
 
-cron.schedule("* * * * *", function () {
+cron.schedule("*/30 * * * *", function () {
   checkVaccines();
 });
 

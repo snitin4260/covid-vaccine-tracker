@@ -2,13 +2,14 @@ const {CHOSEN_VACCINE, CHOSEN_DOSE, DOSE_OBJ} = require("./constants")
 
 function differentAgeGroupsSameVaccine(data) {
   const intersectionResults = [];
+  const selecteDose = DOSE_OBJ[CHOSEN_DOSE];
   data.centers.forEach((center) => {
     const centerId = center.center_id;
     const pass1 = [];
     const pass2 = [];
 
     center.sessions.forEach((session) => {
-      const selecteDose = DOSE_OBJ[CHOSEN_DOSE];
+
       const sessionDoseValue = session[selecteDose];
       if (
         session.min_age_limit < 45 &&
@@ -44,6 +45,7 @@ function differentAgeGroupsSameVaccine(data) {
             pincode: center.pincode,
             date: p1Date,
             centerId,
+            dose: `18+ doses ${item[selecteDose]} 45+ doses${p2Item[selecteDose]}`,
             time: matchingTime.join(" "),
           });
         }
